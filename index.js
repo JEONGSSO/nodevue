@@ -1,6 +1,10 @@
 const express = require('express');
+
 const app = express(),
       testJson = require('./test/test.json');
+
+      //require를 import로 사용해도 된다.
+    //   import{ testJson } from 'test';
       
 app.set('views', __dirname + '/views'); //폴더는 views
 app.set('view engine', 'ejs');  //ejs를 사용한다고 선언
