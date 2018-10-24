@@ -23,4 +23,3 @@ connection.query('select * from User where uid=?',['js'], function (error, resul
 //   });
  
 connection.end();   //mysql.createConnection 이친구가 쿼리가 끝나야 실행되게해준다.
-

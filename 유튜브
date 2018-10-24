@@ -1,0 +1,13 @@
+
+2:04    utils.js 생성
+
+utilstest.js
+    6:47    js 생성, ogsinfo 테스트
+    10:02   Crypto-js 암복호화
+    22:12   HashMap 테스트 
+
+24:02   pool.js 생성, bluebird 설치
+
+34:26   mysql bluebird, mysqltest2.js 테스트
+
+50:16   mydb.js 생성
