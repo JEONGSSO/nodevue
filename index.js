@@ -1,5 +1,6 @@
 const express = require('express'), //만들어져있던거
-      app = express();
+      app = express(),
+      util = require('util');
 
 const testJson = require('./test/test.json'),   // 얘네들은 가져오기만 했다. 
       Pool = require('./pool'),                 // 선언은 별개 ./ 전역은 안쓴다.
@@ -39,29 +40,59 @@ app.get('/test/:email', (req, res) => {
     res.json(testJson);
 });
 
+///////////////////1024
  const server = app.listen(7000, function(){    //7000 포트로 생성
     console.log("Express's started on port 7000");
 });
 
-const io = require('socket.io').listen(server, {
+const io = require('socket.io').listen(server, {    //서버가 달라붙음
     log: false,
-    origins: '*:*',     //뭐더라
-    pingInterval: 3000, 
-    pingTimeout: 5000   //핑이 끊어질때 대기시간
+    origins: '*:*',     //이걸해야 url이 달라도 들어올수있다
+    pingInterval: 3000, // 클라이언트와 서버가 살아있나 죽어있나 확인 default 25초
+    pingTimeout: 5000   //핑이 끊어질때 대기시간    default 60초
 });
   
-  io.sockets.on('connection', (socket, opt) => {
-	socket.emit('message', {msg: 'Welcome!!'}); //연결이 되면 welcome메세지를 보낸다.
+    io.sockets.on('connection', (socket, opt) => {
+        socket.emit('message', {msg: 'Welcome ' + socket.id}); //emit은 보내는것
+        
+        util.log("connection>>", socket.id, socket.handshake.query);
     
-    io.sockets.on('join', (socket, opt) => {
-      socket.join('message', {msg: 'Welcome!!'}); //연결이 되면 welcome메세지를 보낸다.
+    //최초 접속시 기본 채널로
+        socket.on('join', (roomId, fn) => {  
+                util.log("Join>>>", roomId, Object.keys(socket.rooms));// 방 id값들이 array로 오는것
+            });    //이 소켓은 roomId채널에 join하게 된다.
+    //방 나가기
+    socket.on('leave', (roomId, fn) => {  //클라이언트에서 leave를 부를때 Data만 주는게아니고
+        util.log("leave>>", roomId, socket.id)  //함수도 줄 수있다.
+        socket.leave(roomId, function() {
+            if (fn)
+                fn();
+        });
+    });   
+    
+    socket.on('rooms', (fn) => {  //클라이언트에서 leave를 부를때 Data만 주는게아니고
+        if(fn)
+            fn(Object.keys(socket.rooms));//json 키밸류 리턴
+    });   
 
+    socket.on('message', (data, fn) => {     // json key값 빼올때 object.key 사용
+        util.log("message>>", data);//json array
 
-  socket.on('message', (data, fn) => {
-    util.log("message>>", data.msg, Object.keys(socket.rooms));
+        socket.broadcast.to(data.room).emit('message', {room: data.room, msg: data.msg});
+
+        if (fn)
+            fn(data.msg);
+    });   
+
+    socket.on('message-for-one', (socketid, msg, fn) => {
+        socket.to(socketid).emit('message', {msg: msg});
     });
-  });
+                                 
+    socket.on('disconnecting', data => {  //연결 끊기는 중 
+        util.log("disconnectig>>>", socket.id, Object.keys(socket.rooms));
+    });
 });
+
 
 /*
 //////////////////////////////Request/////////////////////////////
@@ -81,3 +112,4 @@ const io = require('socket.io').listen(server, {
 
 
 */
+

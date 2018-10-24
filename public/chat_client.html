@@ -4,32 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>ChatClient</title>
 </head>
 <body>
-    <script src="/socket.io/socket.io.js"></script>
+    <h1>Chat Client <strong id="myid"></strong></h1>
+    <input type="text" id="roomid" value="room1">
+    <button onclick="joinRoom()">join</button>
 
+    <hr>
+    <div id="status"></div>
+    <div id="list"></div>
+
+    <div>
+        <input type="text" id="msg" value="hi">
+        <button onclick="send()" id="btnSend">Send</button>      
+    </div>
+
+    <div>
+        <input type="text" id="socketid" value="hi">
+        <button onclick="sendOne()" id="btnSend">귓속말</button>      
+    </div>
+
+<script src="/socket.io/socket.io.js"></script> <!-- socket.io가 기본적으로 제공 -->
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous">
+</script>
 <script>
-  var socket = io('http://localhost:7000'); //포트도 가능
+    var square = 'square';
+    var joinedRoom = null;// 현재 접속된 방 아이디 (주의: 초기 값 셋팅하면 join시 초기값 방을 나오므로 null setting!!)
+    var socket = io('http://localhost:7000'); //포트도 가능
 
   socket.on('connect', function(){
-      socket.join()
+    console.log("연결 됨");
+
+    makeJoin(square);   
+
+    $('#status').text("Connected : " + joinedRoom); //내 방이 어디인지 알고싶을때
+
+    displayRooms();
+
   });
 
-  socket.on('message', function(data){
+  socket.on('message', function(data) {  //emit의 message가 data로 온다
+    console.log("message>>", data)   
+
+    let msg = data.msg;
+
+    $('#list').append(`<div><strong>${msg}</strong></div>`);
+
+
+    if (msg && msg.startsWith('Welcome ')) {
+        let myid = msg.substring(msg.lastIndexOf(' ') + 1);//스페이스로 부터 1칸 뒤 Welcome yourid Welcome까지 뒤는 삭제
+        $('#myid').text(myid);
+    }  
   });
 
 //disconnecting 은 끊어지기전의 정보를 가져올 수 있어서 자주 사용한다.
   socket.on('disconnecting', function(){ 
     console.log("disconnected!!");
+    $('#status').text("disConnected");
   });
 
-  function send() {
-    socket.emit('message', {room: joinedRoom, msg: msg}, function(ret){
-        
-    });
-  
-}
+  function send() { //Send했을때 메시지를 보내느것
+    // let msg = document.getElementById("msg").val?
+        let msg = $('#msg').val();
+        socket.emit('message', {room: joinedRoom, msg: msg}, function(ret){
+            console.log("message.callback>>", ret);
+            $('#list').append(`<div>${msg}</div>`);
+        });
+    }
+    joinRoom = () => {   
+        let roomid = $('input#roomid').val();
+        if (!roomid) {
+            alert('input the room-id');
+            return;
+        }
+        console.log("joinRoom>>", roomid)
+
+        makeJoin(roomid);
+    }
+
+    makeJoin = (roomid) => {
+        socket.emit('join', roomid, () => {
+            socket.emit('leave', joinedRoom); //저번에 들어갔던 방을 나온다. ##중요##
+            joinedRoom = roomid;    //조인이 될때만 변경
+            $('#status').text("Joined : " + joinedRoom)
+            displayRooms();
+        });
+    }
+
+    displayRooms = () => {
+        socket.emit('rooms', rooms => {
+            console.log("rooms>>", rooms);
+            $('#rooms').text(rooms);
+        }); 
+    }
+
+    sendOne = () => {
+    let socketid = $('#socketid').val();
+    if (!socketid) return alert("Input the socketid!!");
+    socket.emit("message-for-one", socketid, "귓속말:" + $('#msg').val());
+  }
 
 </Script>
 </body>
