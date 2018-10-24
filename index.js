@@ -43,8 +43,25 @@ app.get('/test/:email', (req, res) => {
     console.log("Express's started on port 7000");
 });
 
+const io = require('socket.io').listen(server, {
+    log: false,
+    origins: '*:*',     //뭐더라
+    pingInterval: 3000, 
+    pingTimeout: 5000   //핑이 끊어질때 대기시간
+});
+  
+  io.sockets.on('connection', (socket, opt) => {
+	socket.emit('message', {msg: 'Welcome!!'}); //연결이 되면 welcome메세지를 보낸다.
+    
+    io.sockets.on('join', (socket, opt) => {
+      socket.join('message', {msg: 'Welcome!!'}); //연결이 되면 welcome메세지를 보낸다.
 
 
+  socket.on('message', (data, fn) => {
+    util.log("message>>", data.msg, Object.keys(socket.rooms));
+    });
+  });
+});
 
 /*
 //////////////////////////////Request/////////////////////////////
