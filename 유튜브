@@ -1,17 +1,21 @@
-1:47 Socket.io
+1:40    사전 지식 - WebPack
+9:04    WebPack Sample
+14:51   사전 지식 - MVVM
 
-14:05 index.js chat server 생성
+19:49   Vue.js 란
+        26:44   vuetify
+        31:05   Component
+        33:05   Router, Resource, Template, Life Cycle
+        34:38   Render, Directives
+        35:25   2-Way Data-binding, Computed properties, Events
+        36:48   다른 프레임워크와의 비교
 
-17:40 Simple Char Site
-    24:00   chat client 생성, 설명
-    37:23   disconnect, ting 차이
-    38:30   1. 최초 연결시 기본방(default room) 자동 join
-    40:53   방 목록 server rooms 추가
-    43:14   client rooms 추가
-    45:25   2. 특정 방 조인 / 나가기 기능
-    52:30   3. 조인된 방 사람들에게 메시지 보내기
-    59:30   메시지 테스트
-    1:02:52 4. 귓속말
-   
+40:03   Vue Life Cycle Diagram
 
+42:48   Install Vue.js
 
+48:18   Make & Run First Vue (방법 1)
+        50:22   포트 변경
+        54:15   방법 3
+
+1:10:09 간단한 테스트, 설명
