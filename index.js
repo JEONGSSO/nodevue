@@ -1,35 +1,35 @@
 const express = require('express'), //만들어져있던거
-      app = express(),
-      util = require('util');
+    app = express(),
+    util = require('util');
 
-const testJson = require('./test/test.json'),   // 얘네들은 가져오기만 했다. 
-      Pool = require('./pool'),                 // 선언은 별개 ./ 전역은 안쓴다.
-      Mydb = require('./mydb');                 // 사용자가 만든 것 대문자로 시작
+const Pool = require('./pool'),                 // 선언은 별개 ./ 전역은 안쓴다.
+    Mydb = require('./mydb');                 // 사용자가 만든 것 대문자로 시작
 
-      //require를 import로 사용해도 된다.
-    //   import{ testJson } from 'test';
+const testJson = require('./test/test.json');   // 얘네들은 가져오기만 했다. 
+//require를 import로 사용해도 된다.
+//   import{ testJson } from 'test';
 
 const pool = new Pool();    // 다시 새롭게 정의
-      
+
+app.use(express.static('public'));  //public 폴더 쓴다고 선언
 app.set('views', __dirname + '/views'); //폴더는 views
 app.set('view engine', 'ejs');  //ejs를 사용한다고 선언
 app.engine('html', require('ejs').renderFile);  //html 형식이 아니라 
-app.use(express.static('public'));  //public 폴더 쓴다고 선언
 
 
 app.get('/', (req, res) => {
     // res.send("Hello NodeJS!!"); //Response 보내기
     // res.json(testJson);
     //index.ejs, 모델 addAtrribute처럼 name을 올려(?)준다
-    res.render('index', {name : '홍'}); //render 기본 콘텍스트를 포함하는 객체
+    res.render('index', { name: '홍' }); //render 기본 콘텍스트를 포함하는 객체
 });
 
 app.get('/dbtest/:user', (req, res) => {
     let user = req.params.user; //url user를 파라메타로 받는다.
     let mydb = new Mydb(pool);  //mydb 선언 
-    mydb.excute( conn => {  //query는 연결이 선행되어야지만 된다.
+    mydb.excute(conn => {  //query는 연결이 선행되어야지만 된다.
         conn.query("select * from User where uid=?", [user], (err, ret) => {
-          res.json(ret);    //결과를 제이슨으로 
+            res.json(ret);    //결과를 제이슨으로 
         });
     });
 });
@@ -40,59 +40,65 @@ app.get('/test/:email', (req, res) => {
     res.json(testJson);
 });
 
-///////////////////1024
- const server = app.listen(7000, function(){    //7000 포트로 생성
+///////////////////1024///////////////////////
+const server = app.listen(7000, function () {    //7000 포트로 생성
     console.log("Express's started on port 7000");
 });
 
-const io = require('socket.io').listen(server, {    //서버가 달라붙음
+const io = require('socket.io').listen(server, {    //서버가 달라붙음s
     log: false,
     origins: '*:*',     //이걸해야 url이 달라도 들어올수있다
     pingInterval: 3000, // 클라이언트와 서버가 살아있나 죽어있나 확인 default 25초
     pingTimeout: 5000   //핑이 끊어질때 대기시간    default 60초
 });
-  
-    io.sockets.on('connection', (socket, opt) => {
-        socket.emit('message', {msg: 'Welcome ' + socket.id}); //emit은 보내는것
-        
-        util.log("connection>>", socket.id, socket.handshake.query);
-    
-    //최초 접속시 기본 채널로
-        socket.on('join', (roomId, fn) => {  
-                util.log("Join>>>", roomId, Object.keys(socket.rooms));// 방 id값들이 array로 오는것
-            });    //이 소켓은 roomId채널에 join하게 된다.
-    //방 나가기
+
+//////////emit은 보낼때, on은 받을때
+io.sockets.on('connection', (socket, opt) => {
+    socket.emit('message', { msg: 'Welcome ' + socket.id });
+    //message라는 이름으로 보낸다. msg안에 welcome이랑 socket.id 같이 넣어서 보냄
+    util.log("connection>>", socket.id, socket.handshake.query);
+
+    //최초 접속시 기본(square) 채널로
+    socket.on('join', (roomId, fn) => {
+        socket.join(roomId, () => {    //조인 되었을때 !
+            util.log("Join>>>", roomId, Object.keys(socket.rooms));// 방 id값들이 array로 오는것
+            if (fn)
+                fn();   //뭐길래??? //이 소켓은 roomId채널에 join하게 된다.
+        });
+    });
+
+    //방 나가기 
     socket.on('leave', (roomId, fn) => {  //클라이언트에서 leave를 부를때 Data만 주는게아니고
-        util.log("leave>>", roomId, socket.id)  //함수도 줄 수있다.
-        socket.leave(roomId, function() {
+        socket.leave(roomId, () => {        //함수도 줄 수있다.
+            util.log("leave>>", roomId, socket.id);
             if (fn)
                 fn();
         });
-    });   
-    
-    socket.on('rooms', (fn) => {  //클라이언트에서 leave를 부를때 Data만 주는게아니고
-        if(fn)
-            fn(Object.keys(socket.rooms));//json 키밸류 리턴
-    });   
+    });
 
+    socket.on('rooms', (fn) => {  //클라이언트 displayRooms에서 부름 
+        if (fn)
+            fn(Object.keys(socket.rooms));// displayRooms에다가 json 키밸류 리턴
+    });
+
+    // data: {room: 'roomid', msg: 'msg 내용..'}
     socket.on('message', (data, fn) => {     // json key값 빼올때 object.key 사용
-        util.log("message>>", data);//json array
+        util.log("on:::::message>>", data);//json array
 
-        socket.broadcast.to(data.room).emit('message', {room: data.room, msg: data.msg});
+        socket.broadcast.to(data.room).emit('message', { room: data.room, msg: data.msg });
 
         if (fn)
-            fn(data.msg);
-    });   
+            fn(data.msg);   //넘어온 function(fn)이 있으면 data.msg를 담아 리턴.
+    });
 
     socket.on('message-for-one', (socketid, msg, fn) => {
-        socket.to(socketid).emit('message', {msg: msg});
+        socket.to(socketid).emit('message', { msg: msg });
     });
-                                 
-    socket.on('disconnecting', data => {  //연결 끊기는 중 
+
+    socket.on('disconnecting', data => {  //연결 끊기는 중 ssss
         util.log("disconnectig>>>", socket.id, Object.keys(socket.rooms));
     });
 });
-
 
 /*
 //////////////////////////////Request/////////////////////////////

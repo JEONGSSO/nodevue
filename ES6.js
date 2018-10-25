@@ -32,7 +32,7 @@ for (let i = 0; i < 1e1; i++) {}
 
 //8. 객체 프로퍼티
 const obj = { x:x, y:y };
-const obj = { x, y };   //축약기법
+const obj = { x, y };   //x : x 같이 키 밸류가 같으면 축약 가능
 
 //9. 애로우(화살표) 함수
 setTimeout(function() {
