@@ -1,41 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>ChatClient</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>ChatClient</title>
 </head>
+
 <body>
-    <p>Socket id : </p>
-    <div id="myid"></div>
+	<p>Socket id : </p>
+	<div id="myid"></div>
 
 
-<script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous">
-</script>
-<script src="/socket.io/socket.io.js"></script> <!-- socket.io가 기본적으로 제공 -->
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+	 crossorigin="anonymous">
+	</script>
+	<script src="/socket.io/socket.io.js"></script> <!-- socket.io가 기본적으로 제공 -->
 
-<script>
-    var socket = io('http://localhost:7000');
-
-    socket.on('connect', () => {
-        console.log("connected");
-
-        socket.on('message', (data) => {
-            let msg = data.msg;
-
-            if(msg)
-                $('#myid').text(msg); 
-        });
-    });
+	<script>
+		var socket = io('http://localhost:7000');
 
 
-    
+		socket.on('connect', () => {
+			console.log("connected")
 
-</script>
+			socket.on('message', (data) => {
+				let msg = data.msg
+				if (msg)
+					$('#myid').text(msg);
+			})
+		})
+
+
+
+
+
+
+
+
+
+
+	</script>
 
 </body>
+
 </html>

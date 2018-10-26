@@ -2,24 +2,17 @@
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png">
     <HelloWorld msg="Welcome to Your Vue.js App"/>
-    <todo-item> {{ttt}} </todo-item> <!--컴포넌트화 -->
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
 import HelloWorld from '@/components/HelloWorld.vue'
-import todoitem from '@/components/TodoItem.vue'
+
 export default {
   name: 'home',
   components: {
-    HelloWorld,
-    todoitem
-  },
-  data() {
-    return {
-      ttt : "ㅁㄴㅇ"
-    }
+    HelloWorld
   }
 }
 </script>
