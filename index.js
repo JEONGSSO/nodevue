@@ -83,6 +83,7 @@ io.sockets.on("connection", (socket, opt) => {
   socket.on("rooms", fn => {
     //클라이언트 displayRooms에서 부름
       if (fn) fn(Object.keys(socket.rooms)); // displayRooms에다가 json 키밸류 리턴
+
    });
 
   // data: {room: 'roomid', msg: 'msg 내용..'}

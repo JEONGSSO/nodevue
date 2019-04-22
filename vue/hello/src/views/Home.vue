@@ -15,7 +15,7 @@
     <div :class="{red:isButtonDisabled}">REDDDDDDD</div>
 
     <todo-item v-for="item in groceryList"
-               v-if="item.id > 0"
+               :v-if="item.id > 0"
                :todo="item"
                :key="item.id">
     </todo-item>

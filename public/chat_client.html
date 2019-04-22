@@ -46,7 +46,7 @@
 
     $('#status').text("Connected : " + joinedRoom); //내 방이 어디인지 알고싶을때
 
-    displayRooms();
+    // displayRooms();
 
   });
 
@@ -101,7 +101,7 @@
 
     displayRooms = () => {
         socket.emit('rooms', rooms => {
-            // console.log("displayRooms>>>>>>>>>>", rooms);
+            console.log("displayRooms>>>>>>>>>>", rooms);
             $('#rooms').text(rooms);
         }); 
     }
