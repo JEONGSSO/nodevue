@@ -5,46 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>ChatClient</title>
+    <link rel="stylesheet" href="./css/common.css">
 </head>
 <body>
-    <h1>Socket Id : <strong id="myid"></strong></h1>
-    <!-- <div id="rooms"></div> -->
-    <div>
-        <input type="text" id="roomid" value="room1">
-        <button onclick="joinRoom()">join</button>
+    <div id="chat-container">
+        <header>
+            <h1>Socket Id : <strong id="myid"></strong></h1>
+        </header>
+        <section>
+            <article>
+                <div class="joined-room"></div>
+                <div>
+                    <input type="text" id="roomid" value="room1">
+                    <button class="btn info" onclick="joinRoom()">join</button>
+                </div>
+    
+                <hr>
+                <div id="status"></div>
+                <div class="greeting"></div>
+                
+    
+                <!-- <div>
+                    <input type="text" id="socketid" value="">
+                    <button class="btn" onclick="sendOne()">귓속말</button>      
+                </div> -->
+            </article>
+            <article class="chat-list-wrap">
+                <ul class="chat-list">
+                
+                </ul>
+            </article>
+        </section>
+        <footer class="chat-footer">
+                <input type="text" class="chat-footer-input" id="msg" value="hi">
+                <button class="btn" onclick="send()" id="btnSend">Send</button>   
+            </div>
+        </footer>
     </div>
 
-    <hr>
-    <div id="status"></div>
-    <div id="list"></div>
 
-    <div>
-        <input type="text" id="msg" value="hi">
-        <button onclick="send()" id="btnSend">Send</button>      
-    </div>
-
-    <div>
-        <input type="text" id="socketid" value="">
-        <button onclick="sendOne()">귓속말</button>      
-    </div>
-
-<script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous">
-</script>
 <script src="/socket.io/socket.io.js"></script> <!-- socket.io가 기본적으로 제공 -->
 <script>
     var square = 'square';
     var joinedRoom = null;// 현재 접속된 방 아이디 (주의: 초기 값 셋팅하면 join시 초기값 방을 나오므로 null setting!!)
     var socket = io('http://localhost:7000'); //포트도 가능
-
   socket.on('connect', function(){
     console.log("연결 됨");
-    $('#list').empty(); //연결 될 때 리스트를 비워주는것.
-    makeJoin(square);   
-
-    $('#status').text("Connected : " + joinedRoom); //내 방이 어디인지 알고싶을때
+    // document.querySelector('.chat-list').innerText = '';
+    
+    makeJoin(square);
 
     // displayRooms();
 
@@ -54,32 +63,32 @@
     console.log("message>>", data)   
 
     let msg = data.msg; //'connection' 에서
-
-    $('#list').append(`<div><strong>${msg}</strong></div>`);
+    const createChatList =  chatCreateEle(msg)
+        querySelect('.chat-list').appendChild(createChatList)
 
     if (msg && msg.startsWith('Welcome ')) {
         let myid = msg.substring(msg.lastIndexOf(' ') + 1);//스페이스로 부터 1칸 뒤 Welcome yourid Welcome까지 뒤는 삭제
-        $('#myid').text(myid);
+        querySelect('#myid').innerText = myid
     }  
   });
 
 //disconnecting 은 끊어지기전의 정보를 가져올 수 있어서 자주 사용한다.
   socket.on('disconnecting', function(){ 
     console.log("disconnected!!");
-    $('#status').text("disConnected");
+    querySelect('#status').innertext("disConnected");
   });
 
   function send() { //Send했을때 메시지를 보내느것
-    // let msg = document.getElementById("msg").val?
-        let msg = $('#msg').val();
+        let msg = querySelect('#msg').value;
         socket.emit('message', {room: joinedRoom, msg: msg}, function(ret){
             console.log("message.callback>>", ret);
-            $('#list').append(`<div>${msg}</div>`);
+            const createChatList =  chatCreateEle(msg)
+            querySelect('.chat-list').appendChild(createChatList)
         });
     }
 
     joinRoom = () => {   
-        let roomid = $('input#roomid').val();
+        let roomid = querySelect('input#roomid').value;
         if (!roomid) {
             alert('input the room-id');
             return;
@@ -94,7 +103,7 @@
         socket.emit('join', roomid, () => {
             socket.emit('leave', joinedRoom); //저번에 들어갔던 방을 나온다. ##중요##
             joinedRoom = roomid;    //조인이 될때만 변경
-            $('#status').text("Joined : " + joinedRoom);
+            querySelect('#status').innerText ="접속된 방 : " + joinedRoom;
             displayRooms();
         });
     }
@@ -102,15 +111,22 @@
     displayRooms = () => {
         socket.emit('rooms', rooms => {
             console.log("displayRooms>>>>>>>>>>", rooms);
-            $('#rooms').text(rooms);
+            querySelect('.joined-room').innerText = rooms;
         }); 
     }
 
     sendOne = () => {
-    let socketid = $('#socketid').val();
-    if (!socketid) return alert("Input the socketid!!");
-    socket.emit("message-for-one", socketid, "귓속말 :" + $('#msg').val());
-  }
+        let socketid = querySelect('#socketid').value;
+        if (!socketid) return alert("Input the socketid!!");
+        socket.emit("message-for-one", socketid, "귓속말 :" + ('#msg').val());
+    }  
+
+    const querySelect = (selector) => document.querySelector(selector)
+    const chatCreateEle = (msg) =>  {
+        const child = document.createElement('li')
+            child.innerHTML = msg 
+            return child
+    } 
 
 </Script>
 </body>

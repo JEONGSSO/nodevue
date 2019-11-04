@@ -20,7 +20,8 @@ app.get("/", (req, res) => {
   // res.send("Hello NodeJS!!"); //Response 보내기
   // res.json(testJson);
   //index.ejs, 모델 addAtrribute처럼 name을 올려(?)준다
-  res.render("index", { name: "홍" }); //render 기본 콘텍스트를 포함하는 객체
+   //   res.render("index", { name: "홍" }); //render 기본 콘텍스트를 포함하는 객체
+   res.sendFile('./public/chat_client.html', {root : __dirname})
 });
 
 app.get("/dbtest/:user", (req, res) => {
@@ -40,7 +41,7 @@ app.get("/test/:email", (req, res) => {
   res.json(testJson);
 });
 
-///////////////////1024///////////////////////
+///////////////////1024 채팅///////////////////////
 const server = app.listen(7000, function() {
   //7000 포트로 생성
   console.log("Express's started on port 7000");

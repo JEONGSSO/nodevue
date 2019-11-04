@@ -1,0 +1,64 @@
+@charset "utf-8";
+
+/* Reset */
+* {margin:0; padding:0;}
+body, p, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dt, dd, table, th, td, form, fieldset, legend, input, textarea, button, select {margin:0; padding:0;}
+body, input, textarea, select, button, table, th, td, h1, h2, h3, h4, h5, h6 {font-family: gulim; font-size:12px; color:#231916;}
+html, body {height:100%;}
+img, fieldset {border:0;}
+ul, ol {list-style:none;}
+em, address {font-style:normal;}
+a {color:#231916; text-decoration:none;}
+a:hover, a:active, a:focus {text-decoration:none;}
+table {border-collapse:collapse;}
+body {_width:100%; _height:100%; background-repeat:repeat-y;}
+button {margin:0; padding:0; border:0; background:none; cursor:pointer;}
+button::-moz-focus-inner {padding: 0 !important; border:0;}
+.blind {visibility:hidden; overflow:hidden; position:absolute; top:0; left:0; width:0; height:0; font-size:0; line-height:0;}
+.show {display:block!important;}
+.hide {display:none!important;}
+caption {display:none;}
+
+/* custom css*/
+
+#chat-container {
+   max-width: 800px;
+   margin: 0 auto;
+}
+
+
+#chat-container .chat-list-wrap{
+   width: 100%;
+   height: 500px;
+}
+
+#chat-container .chat-list{
+   width: 100%;
+   display: inline-block;
+   background-color: aquamarine;
+}
+
+
+#chat-container .btn {
+   padding: 5px;
+}
+
+#chat-container .btn.info {
+   background-color: cornflowerblue;
+}
+
+#chat-container .btn.warning {
+   background-color: coral;
+}
+
+#chat-container .chat-footer {
+   position: fixed;
+   bottom: 10px;
+   width: 50%;
+   height: 5%;
+}
+
+#chat-container .chat-footer .chat-footer-input {
+   width: 100%;
+   height: 100%;
+}
