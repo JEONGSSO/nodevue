@@ -37,9 +37,8 @@
             </article>
         </section>
         <footer class="chat-footer">
-                <input type="text" class="chat-footer-input" id="msg" value="hi">
-                <button class="btn" onclick="send()" id="btnSend">Send</button>   
-            </div>
+            <input type="text" class="chat-footer-input" id="msg" value="hi">
+            <button class="btn warning" onclick="send()" id="btnSend">Send</button>   
         </footer>
     </div>
 
@@ -49,6 +48,16 @@
     var square = 'square';
     var joinedRoom = null;// 현재 접속된 방 아이디 (주의: 초기 값 셋팅하면 join시 초기값 방을 나오므로 null setting!!)
     var socket = io('http://localhost:7000'); //포트도 가능
+
+    const querySelect = (selector) => document.querySelector(selector)
+    const createChatList = (msg) => querySelect('.chat-list').appendChild(chatCreateEle(msg))
+    const chatCreateEle = (msg) =>  {
+        const child = document.createElement('li')
+            child.innerHTML = msg 
+            return child
+    }
+    const emptyChatInput = () => querySelect('.chat-footer-input').value = ''
+
   socket.on('connect', function(){
     console.log("연결 됨");
     // document.querySelector('.chat-list').innerText = '';
@@ -61,7 +70,6 @@
 
   socket.on('message', function(data) {  //emit의 message가 data로 온다
     console.log("message>>", data)   
-
     let msg = data.msg; //'connection' 에서
     const createChatList =  chatCreateEle(msg)
         querySelect('.chat-list').appendChild(createChatList)
@@ -69,7 +77,7 @@
     if (msg && msg.startsWith('Welcome ')) {
         let myid = msg.substring(msg.lastIndexOf(' ') + 1);//스페이스로 부터 1칸 뒤 Welcome yourid Welcome까지 뒤는 삭제
         querySelect('#myid').innerText = myid
-    }  
+    }
   });
 
 //disconnecting 은 끊어지기전의 정보를 가져올 수 있어서 자주 사용한다.
@@ -82,8 +90,8 @@
         let msg = querySelect('#msg').value;
         socket.emit('message', {room: joinedRoom, msg: msg}, function(ret){
             console.log("message.callback>>", ret);
-            const createChatList =  chatCreateEle(msg)
-            querySelect('.chat-list').appendChild(createChatList)
+            createChatList(msg)
+            emptyChatInput()
         });
     }
 
@@ -121,12 +129,14 @@
         socket.emit("message-for-one", socketid, "귓속말 :" + ('#msg').val());
     }  
 
-    const querySelect = (selector) => document.querySelector(selector)
-    const chatCreateEle = (msg) =>  {
-        const child = document.createElement('li')
-            child.innerHTML = msg 
-            return child
-    } 
+    const pressEnter = (e) => {
+        e.keyCode === 13 ? send() : null
+    }
+
+    document.querySelector('.chat-footer-input').onkeydown = pressEnter;
+
+
+    
 
 </Script>
 </body>
